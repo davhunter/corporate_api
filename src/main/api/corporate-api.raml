@@ -1,0 +1,24 @@
+#%RAML 1.0
+title: Corporate API
+version: 1.0
+baseUri: http://localhost:8081/corporate-api/
+
+types:
+  Error: !include Error.raml
+
+/corporations:
+  /{corporation-name}:
+    get:
+      queryParameters:
+      responses:
+        200:
+          body:
+            application/json:
+        400:
+          body:
+            application/json:
+              type: Error
+        404:
+          body:
+            application/json:
+              type: Error
