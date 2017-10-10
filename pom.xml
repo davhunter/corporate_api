@@ -158,6 +158,7 @@
 			<groupId>${deh.groupId}</groupId>
 			<artifactId>${deh.artifactId}</artifactId>
 			<version>${deh.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<!-- for testing -->
 		<dependency>
