@@ -181,7 +181,7 @@
 			<groupId>${deh.groupId}</groupId>
 			<artifactId>${deh.artifactId}</artifactId>
 			<version>${deh.version}</version>
-			<!-- scope>provided</scope -->
+			<scope>provided</scope>
 		</dependency>
 		<!-- other dependencies -->
 		<dependency>
@@ -210,6 +210,20 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    
+    <profiles>
+    	<profile>
+    		<id>embedded-runtime</id>
+    		<dependencies>
+    			<dependency>
+    				<groupId>${deh.groupId}</groupId>
+    				<artifactId>${deh.artifactId}</artifactId>
+    				<version>${deh.version}</version>
+    				<scope>compile</scope>
+    			</dependency>
+    		</dependencies>
+    	</profile>
+    </profiles>
 
 	<repositories>
           <repository>
