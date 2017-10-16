@@ -1,11 +1,16 @@
 package com.deloitte.capi.cdm.hc.recalls;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.ArrayList;
 
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+/**
+ * Contains detail about a Recall from Health Canada
+ * @author David Hunter
+ * @apiviz.landmark
+ */
 @JsonAutoDetect
 public class Recall implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -13,16 +18,16 @@ public class Recall implements Serializable {
 	private String title;
 	private String department;
 	private long datePublished;
-	private String[] category;
+	private ArrayList<String> categories = new ArrayList<String>();
 	private String url;
 
-	public Recall(String recallId, String title, String department, long datePublished, String[] category, String url) {
+	public Recall(String recallId, String title, String department, long datePublished, ArrayList<String> categories, String url) {
 		super();
 		this.recallId = recallId;
 		this.title = title;
 		this.department = department;
 		this.datePublished = datePublished;
-		this.category = category;
+		this.categories = categories;
 		this.url = url;
 	}
 
@@ -34,18 +39,34 @@ public class Recall implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Recall [recallId=");
-		builder.append(recallId);
-		builder.append(", title=");
-		builder.append(title);
-		builder.append(", department=");
-		builder.append(department);
-		builder.append(", datePublished=");
+		builder.append("Recall [");
+		if (recallId != null) {
+			builder.append("recallId=");
+			builder.append(recallId);
+			builder.append(", ");
+		}
+		if (title != null) {
+			builder.append("title=");
+			builder.append(title);
+			builder.append(", ");
+		}
+		if (department != null) {
+			builder.append("department=");
+			builder.append(department);
+			builder.append(", ");
+		}
+		builder.append("datePublished=");
 		builder.append(datePublished);
-		builder.append(", category=");
-		builder.append(Arrays.toString(category));
-		builder.append(", url=");
-		builder.append(url);
+		builder.append(", ");
+		if (categories != null) {
+			builder.append("categories=");
+			builder.append(categories);
+			builder.append(", ");
+		}
+		if (url != null) {
+			builder.append("url=");
+			builder.append(url);
+		}
 		builder.append("]");
 		return builder.toString();
 	}
@@ -84,12 +105,14 @@ public class Recall implements Serializable {
 		this.datePublished = datePublished;
 	}
 
-	public String[] getCategory() {
-		return category;
+	@JsonProperty("category")
+	public ArrayList<String> getCategories() {
+		return categories;
 	}
 
-	public void setCategory(String[] category) {
-		this.category = category;
+	@JsonProperty("category")
+	public void setCategories(ArrayList<String> categories) {
+		this.categories = categories;
 	}
 
 	public String getUrl() {

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:context="http://www.springframework.org/schema/context" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:https="http://www.mulesoft.org/schema/mule/https" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:context="http://www.springframework.org/schema/context" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
-http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
 
     <http:listener-config name="corporate-api-httpListenerConfig" host="0.0.0.0" port="${api.http.port}" doc:name="HTTP Listener Configuration"/>
     
@@ -15,7 +17,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
     </spring:beans>
     
     <context:property-placeholder location="capi-${mule.env}.properties"/>
-    <http:request-config name="HC_HTTP_Request_Configuration" host="${hc.host}" port="${hc.port}" basePath="${hc.basepath}" doc:name="HTTP Request Configuration"/>
+    <http:request-config name="HC_HTTP_Request_Configuration" host="${hc.host}" port="${hc.port}" basePath="${hc.basepath}" doc:name="HTTP Request Configuration" connectionIdleTimeout="300000"/>
     
     <flow name="corporate-api-main">
         <http:listener config-ref="corporate-api-httpListenerConfig" path="/corporate-api/*" doc:name="HTTP"/>
@@ -29,18 +31,54 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
     </flow>
     
     <flow name="get:/corporations/{corporation-name}:corporate-api-config">
-        <enricher target="variable:recalls" doc:name="Search for Recalls">
-            <processor-chain doc:name="Processor Chain">
-                <http:request config-ref="HC_HTTP_Request_Configuration" path="${hc.apipath}" method="GET" doc:name="Call Healthy Canadians API">
-                    <http:request-builder>
-                        <http:query-param paramName="search" value="#[flowVars.'corporation-name']"/>
-                        <http:query-param paramName="lang" value="${hc.lang}"/>
-                        <http:query-param paramName="lim" value="${hc.lim}"/>
-                    </http:request-builder>
-                </http:request>
-                <json:json-to-object-transformer returnClass="com.deloitte.capi.cdm.hc.recalls.Recalls" doc:name="JSON to CDM"/>
-            </processor-chain>
-        </enricher>
-        <set-payload value="#[flowVars.recalls]" doc:name="Set Payload"/>
+        <custom-transformer class="com.deloitte.capi.transformers.ExecutionDriverTransformer" doc:name="Generate Driver Data">
+        </custom-transformer>
+        <request-reply doc:name="Request-Reply">
+            <vm:outbound-endpoint exchange-pattern="one-way" path="splitDriverRecords" doc:name="Send to Q for Splitting"/>
+            <vm:inbound-endpoint exchange-pattern="one-way" path="finishedProcessingList" doc:name="Listen to Q for Finished Processing List"/>
+        </request-reply>
+    </flow>
+    <flow name="splitDriverRecordsFlow">
+        <vm:inbound-endpoint exchange-pattern="one-way" path="splitDriverRecords" doc:name="Listen to Q for Driver List"/>
+        <collection-splitter doc:name="Collection Splitter"/>
+        <vm:outbound-endpoint exchange-pattern="one-way" path="driverRecord" doc:name="Send to Q for Message Processing"/>
+    </flow>
+    <flow name="handleRequest">
+        <vm:inbound-endpoint exchange-pattern="one-way" path="driverRecord" doc:name="Listen to Q for Driver Records"/>
+        <set-variable variableName="searchTerm" value="#[payload.searchTerm]" doc:name="Set Search Term"/>
+        <choice doc:name="Choice">
+            <when expression="#[payload.name == 'twitter']">
+		        <enricher target="variable:tweets" doc:name="Search for Tweets">
+		            <custom-transformer class="com.deloitte.capi.transformers.TwitterConnector" doc:name="Call Twitter via Java">
+		                <spring:property name="apiSecret" value="${twitter.apisecret}"/>
+		                <spring:property name="apiKey" value="${twitter.apikey}"/>
+		                <spring:property name="accessToken" value="${twitter.accesstoken}"/>
+		                <spring:property name="accessTokenSecret" value="${twitter.accesstokensecret}"/>
+		            </custom-transformer>
+		        </enricher>
+                <custom-transformer class="com.deloitte.capi.transformers.TweetHandlingTransformer" doc:name="Add Tweet Data to Result"/>
+            </when>
+            <when expression="#[payload.name == 'healthcanada']">
+		        <enricher target="variable:recalls" doc:name="Search for Recalls">
+		            <processor-chain doc:name="Processor Chain">
+		                <http:request config-ref="HC_HTTP_Request_Configuration" path="${hc.apipath}" method="GET" doc:name="Call Healthy Canadians API">
+		                    <http:request-builder>
+                                <http:query-param paramName="search" value="#[flowVars.searchTerm]"/>
+                                <http:query-param paramName="lang" value="${hc.lang}"/>
+                                <http:query-param paramName="lim" value="${hc.lim}"/>
+		                    </http:request-builder>
+		                </http:request>
+                        <byte-array-to-string-transformer doc:name="Byte Array to String"/>
+		                <json:json-to-object-transformer returnClass="com.deloitte.capi.cdm.hc.recalls.Recalls" doc:name="JSON to CDM"/>
+		            </processor-chain>
+		        </enricher>
+                <custom-transformer class="com.deloitte.capi.transformers.HCHandlingTransformer" doc:name="Add HC Data to Result"/>
+            </when>
+            <otherwise>
+                <logger level="ERROR" doc:name="TODO THROW EXCEPTION" message="EXCEPTION SHOULD BE THROWN HERE"/>
+            </otherwise>
+        </choice>
+        <collection-aggregator failOnTimeout="true" doc:name="Collection Aggregator"/>
+        <vm:outbound-endpoint exchange-pattern="one-way" path="finishedProcessingList" doc:name="Send to Q for Finished Processing"/>
     </flow>
 </mule>

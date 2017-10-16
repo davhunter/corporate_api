@@ -22,6 +22,10 @@
     	<deh.groupId>com.deloitte</deh.groupId>
     	<deh.artifactId>deloitte-mulesoft-error-helper</deh.artifactId>
     	<deh.version>1.0.0-SNAPSHOT</deh.version>
+    	
+    	<google.oauth.version>1.22.0</google.oauth.version>
+    	
+    	<apiviz.version>1.3.4</apiviz.version>
 	</properties>
 	
 	<distributionManagement>
@@ -97,6 +101,25 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<doclet>org.jboss.apiviz.APIviz</doclet>
+					<docletArtifact>
+						<groupId>com.grahamedgecombe.apiviz</groupId>
+						<artifactId>apiviz</artifactId>
+						<version>${apiviz.version}</version>
+					</docletArtifact>
+					<show>private</show>
+					<stylesheetfile>${basedir}/src/main/javadoc/customstylesheet.css</stylesheetfile>
+					<reportOutputDirectory>${basedir}/docs</reportOutputDirectory>
+					<additionalparam>
+						-sourceclasspath ${project.build.outputDirectory}
+					</additionalparam>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -158,8 +181,15 @@
 			<groupId>${deh.groupId}</groupId>
 			<artifactId>${deh.artifactId}</artifactId>
 			<version>${deh.version}</version>
-			<scope>provided</scope>
+			<!-- scope>provided</scope -->
 		</dependency>
+		<!-- other dependencies -->
+		<dependency>
+		    <groupId>com.github.mike10004</groupId>
+		    <artifactId>twitter4j-core</artifactId>
+		    <version>4.0.4p2</version>
+		</dependency>
+		
 		<!-- for testing -->
 		<dependency>
 			<groupId>org.mule.tests</groupId>

@@ -6,6 +6,13 @@ import java.util.Arrays;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+/**
+ * Contains search results from searching the Health Canada Recall API
+ * @author David Hunter
+ * @apiviz.landmark
+ * @apiviz.uses org.codehaus.jackson.annotate.JsonAutoDetect
+ * @apiviz.uses com.deloitte.capi.cdm.hc.recalls.Recall
+ */
 @JsonAutoDetect
 public class Recalls implements Serializable {
 
