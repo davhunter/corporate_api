@@ -18,7 +18,8 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
     </spring:beans>
     
     <context:property-placeholder location="capi-${mule.env}.properties"/>
-    <http:request-config name="HC_HTTP_Request_Configuration" host="${hc.host}" port="${hc.port}" basePath="${hc.basepath}" doc:name="HTTP Request Configuration" connectionIdleTimeout="300000"/>
+    
+    <http:request-config name="HC_HTTP_Request_Configuration" host="${hc.host}" port="${hc.port}" basePath="${hc.basepath}" doc:name="HTTP Request Configuration" connectionIdleTimeout="${hc.connectionidletimeout}" responseTimeout="${hc.responsetimeout}"/>
     
     <flow name="corporate-api-main">
         <http:listener config-ref="corporate-api-httpListenerConfig" path="/corporate-api/*" doc:name="HTTP"/>
@@ -34,7 +35,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
     <flow name="get:/corporations/{corporation-name}:corporate-api-config">
         <custom-transformer class="com.deloitte.capi.transformers.ExecutionDriverTransformer" doc:name="Generate Driver Data">
         </custom-transformer>
-        <request-reply doc:name="Request-Reply" timeout="300000">
+        <request-reply doc:name="Request-Reply" timeout="3000000">
             <vm:outbound-endpoint exchange-pattern="one-way" path="splitDriverRecords" doc:name="Send to Q for Splitting"/>
             <vm:inbound-endpoint exchange-pattern="one-way" path="finishedProcessingList" doc:name="Listen to Q for Finished Processing List"/>
         </request-reply>
@@ -62,15 +63,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
             <when expression="#[payload.name == 'healthcanada']">
 		        <enricher target="variable:recalls" doc:name="Search for Recalls">
 		            <processor-chain doc:name="Processor Chain">
-		                <http:request config-ref="HC_HTTP_Request_Configuration" path="${hc.apipath}" method="GET" doc:name="Call Healthy Canadians API">
-		                    <http:request-builder>
-                                <http:query-param paramName="search" value="#[flowVars.searchTerm]"/>
-                                <http:query-param paramName="lang" value="${hc.lang}"/>
-                                <http:query-param paramName="lim" value="${hc.lim}"/>
-		                    </http:request-builder>
-		                </http:request>
-                        <byte-array-to-string-transformer doc:name="Byte Array to String"/>
-		                <json:json-to-object-transformer returnClass="com.deloitte.capi.cdm.hc.recalls.Recalls" doc:name="JSON to CDM"/>
+                        <flow-ref name="call-hc-api-withretry" doc:name="Flow Reference"/>
 		            </processor-chain>
 		        </enricher>
                 <custom-transformer class="com.deloitte.capi.transformers.HCHandlingTransformer" doc:name="Add HC Data to Result"/>
@@ -83,4 +76,18 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
         <collection-aggregator failOnTimeout="true" doc:name="Collection Aggregator"/>
         <vm:outbound-endpoint exchange-pattern="one-way" path="finishedProcessingList" doc:name="Send to Q for Finished Processing"/>
     </flow>
+    <sub-flow name="call-hc-api-withretry">
+        <until-successful maxRetries="3" millisBetweenRetries="60" synchronous="true" doc:name="Until Successful">
+            <http:request config-ref="HC_HTTP_Request_Configuration" path="${hc.apipath}" method="GET" doc:name="Call Healthy Canadians API">
+                <http:request-builder>
+                    <http:query-param paramName="search" value="#[flowVars.searchTerm]"/>
+                    <http:query-param paramName="lang" value="${hc.lang}"/>
+                    <http:query-param paramName="lim" value="${hc.lim}"/>
+                </http:request-builder>
+                <http:success-status-code-validator values="200..599"/>
+            </http:request>
+        </until-successful>
+        <byte-array-to-string-transformer doc:name="Byte Array to String"/>
+        <json:json-to-object-transformer returnClass="com.deloitte.capi.cdm.hc.recalls.Recalls" doc:name="JSON to CDM"/>
+    </sub-flow>
 </mule>
