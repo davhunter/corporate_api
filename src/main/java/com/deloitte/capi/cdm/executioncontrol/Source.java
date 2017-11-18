@@ -26,6 +26,7 @@ public class Source implements Serializable {
 	@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 	private ArrayList<SimpleResult> simpleResults = new ArrayList<SimpleResult>();
 	private String searchTerm;
+	private String errorMessage;
 
 	public Source(String name, ArrayList<DetailedResult> detailedResults, ArrayList<SimpleResult> simpleResults) {
 		super();
@@ -133,5 +134,19 @@ public class Source implements Serializable {
 	 */
 	public void setSearchTerm(String searchTerm) {
 		this.searchTerm = searchTerm;
+	}
+
+	/**
+	 * @return the errorMessage
+	 */
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	/**
+	 * @param errorMessage the errorMessage to set
+	 */
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 }

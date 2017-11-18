@@ -38,6 +38,7 @@
         <!-- Reduce Q-related noise -->
         <AsyncLogger name="org.mule.transport.DefaultReplyToHandler" level="OFF"/>
         <AsyncLogger name="org.mule.lifecycle.AbstractLifecycleManager" level="OFF"/>
+        <AsyncLogger name="org.mule.exception.DefaultMessagingExceptionStrategy" level="OFF"/>
 
         <!-- Mule classes -->
         <AsyncLogger name="org.mule" level="INFO"/>

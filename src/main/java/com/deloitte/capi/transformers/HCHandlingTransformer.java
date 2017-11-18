@@ -46,6 +46,9 @@ public class HCHandlingTransformer extends AbstractMessageTransformer {
 	public Object transformMessage(MuleMessage message, String outputEncoding) throws TransformerException {
 		Recalls recalls = message.getProperty("recalls", PropertyScope.INVOCATION);
 		Source currentSource = (Source) message.getPayload();
+		if(currentSource == null) {
+			return currentSource;
+		}
 
 		for (Recall recall : recalls.getResults()) {
 			SimpleResult sr = new SimpleResult();

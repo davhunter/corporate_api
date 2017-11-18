@@ -50,34 +50,34 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
         <set-variable variableName="searchTerm" value="#[payload.searchTerm]" doc:name="Set Search Term"/>
         <choice doc:name="Choice">
             <when expression="#[payload.name == 'twitter']">
-		        <enricher target="variable:tweets" doc:name="Search for Tweets">
-		            <custom-transformer class="com.deloitte.capi.transformers.TwitterConnector" doc:name="Call Twitter via Java">
-		                <spring:property name="apiSecret" value="${twitter.apisecret}"/>
-		                <spring:property name="apiKey" value="${twitter.apikey}"/>
-		                <spring:property name="accessToken" value="${twitter.accesstoken}"/>
-		                <spring:property name="accessTokenSecret" value="${twitter.accesstokensecret}"/>
-		            </custom-transformer>
-		        </enricher>
+                <enricher target="variable:tweets" doc:name="Search for Tweets">
+                    <custom-transformer class="com.deloitte.capi.transformers.TwitterConnector" doc:name="Call Twitter via Java">
+                        <spring:property name="apiSecret" value="${twitter.apisecret}"/>
+                        <spring:property name="apiKey" value="${twitter.apikey}"/>
+                        <spring:property name="accessToken" value="${twitter.accesstoken}"/>
+                        <spring:property name="accessTokenSecret" value="${twitter.accesstokensecret}"/>
+                    </custom-transformer>
+                </enricher>
                 <custom-transformer class="com.deloitte.capi.transformers.TweetHandlingTransformer" doc:name="Add Tweet Data to Result"/>
             </when>
             <when expression="#[payload.name == 'healthcanada']">
-		        <enricher target="variable:recalls" doc:name="Search for Recalls">
-		            <processor-chain doc:name="Processor Chain">
-                        <flow-ref name="call-hc-api-withretry" doc:name="Flow Reference"/>
-		            </processor-chain>
-		        </enricher>
+                <enricher target="variable:recalls" doc:name="Search for Recalls">
+                    <processor-chain doc:name="Processor Chain">
+                        <flow-ref name="call-hcapi-withretry" doc:name="Call HC Flow"/>
+                    </processor-chain>
+                </enricher>
                 <custom-transformer class="com.deloitte.capi.transformers.HCHandlingTransformer" doc:name="Add HC Data to Result"/>
             </when>
             <otherwise>
-                <logger message="INVALID SOURCE" level="INFO" doc:name="invalid source"/>
-                <validation:is-true exceptionClass="com.deloitte.capi.exceptions.InvalidSourceException" expression="#[1 == 1]" doc:name="Throw exception for invalid source" message="Invalid source"/>
+                <logger message="INVALID SOURCE" level="ERROR" doc:name="invalid source"/>
+                <expression-component doc:name="Set Error Message"><![CDATA[payload.errorMessage = "Invalid Source for data"]]></expression-component>
             </otherwise>
         </choice>
         <collection-aggregator failOnTimeout="true" doc:name="Collection Aggregator"/>
         <vm:outbound-endpoint exchange-pattern="one-way" path="finishedProcessingList" doc:name="Send to Q for Finished Processing"/>
     </flow>
-    <sub-flow name="call-hc-api-withretry">
-        <until-successful maxRetries="3" millisBetweenRetries="60" synchronous="true" doc:name="Until Successful">
+    <flow name="call-hcapi-withretry">
+        <until-successful maxRetries="3" synchronous="true" doc:name="Until Successful">
             <http:request config-ref="HC_HTTP_Request_Configuration" path="${hc.apipath}" method="GET" doc:name="Call Healthy Canadians API">
                 <http:request-builder>
                     <http:query-param paramName="search" value="#[flowVars.searchTerm]"/>
@@ -89,5 +89,5 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
         </until-successful>
         <byte-array-to-string-transformer doc:name="Byte Array to String"/>
         <json:json-to-object-transformer returnClass="com.deloitte.capi.cdm.hc.recalls.Recalls" doc:name="JSON to CDM"/>
-    </sub-flow>
+    </flow>
 </mule>
