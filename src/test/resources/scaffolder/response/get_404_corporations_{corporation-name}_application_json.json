@@ -1,0 +1,1 @@
+{  "errorCode": 200001,  "message": "Resource Not Found",  "description": "\/corporationss\/{corporation-name} (org.mule.module.apikit.exception.NotFoundException)."  }
