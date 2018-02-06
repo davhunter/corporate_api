@@ -1,41 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.deloitte</groupId>
 	<artifactId>corporate-api</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <packaging>mule</packaging>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>mule</packaging>
 	<name>Mule corporate-api Application</name>
 
-    <properties>
+	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<mule.version>3.8.1</mule.version>
-    	<mule.tools.version>1.2</mule.tools.version>
-    	<!-- remote repo details -->
-    	<localrepo.url>http://BuildBox:8082/repository/internal</localrepo.url>
-    	<localrepo.id>local-internal</localrepo.id>
-    	<localrepo.name>Local Repository</localrepo.name>
-    	
-    	<deh.groupId>com.deloitte</deh.groupId>
-    	<deh.artifactId>deloitte-mulesoft-error-helper</deh.artifactId>
-    	<deh.version>1.0.0-SNAPSHOT</deh.version>
-    	
-    	<google.oauth.version>1.22.0</google.oauth.version>
-    	
-    	<apiviz.version>1.3.4</apiviz.version>
-	<munit.version>1.3.7</munit.version>
-    <mule.munit.support.version>3.8.6</mule.munit.support.version>
-    </properties>
-	
+		<mule.tools.version>1.2</mule.tools.version>
+		<!-- remote repo details -->
+		<localrepo.url>http://BuildBox:8082/repository/internal</localrepo.url>
+		<localrepo.id>local-internal</localrepo.id>
+		<localrepo.name>Local Repository</localrepo.name>
+
+		<deh.groupId>com.deloitte</deh.groupId>
+		<deh.artifactId>deloitte-mulesoft-error-helper</deh.artifactId>
+		<deh.version>1.0.0-SNAPSHOT</deh.version>
+
+		<google.oauth.version>1.22.0</google.oauth.version>
+
+		<apiviz.version>1.3.4</apiviz.version>
+		<munit.version>1.3.7</munit.version>
+		<mule.munit.support.version>3.8.6</mule.munit.support.version>
+	</properties>
+
 	<distributionManagement>
-	    <repository>
-	        <id>${localrepo.id}</id>
-	        <name>${localrepo.name}</name>
-	        <url>${localrepo.url}</url>
-	    </repository>
+		<repository>
+			<id>${localrepo.id}</id>
+			<name>${localrepo.name}</name>
+			<url>${localrepo.url}</url>
+		</repository>
 	</distributionManagement>
 
 	<build>
@@ -73,7 +74,7 @@
 				<version>${mule.tools.version}</version>
 				<extensions>true</extensions>
 				<configuration>
-                    <copyToAppsDirectory>true</copyToAppsDirectory>
+					<copyToAppsDirectory>true</copyToAppsDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -122,38 +123,38 @@
 					</additionalparam>
 				</configuration>
 			</plugin>
-		<plugin>
-                <groupId>com.mulesoft.munit.tools</groupId>
-                <artifactId>munit-maven-plugin</artifactId>
-                <version>${munit.version}</version>
-                <executions>
-                    <execution>
-                        <id>test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <coverage>
-                        <runCoverage>true</runCoverage>
-                        <formats>
-                            <format>html</format>
-                        </formats>
-                    </coverage>
-                </configuration>
-            </plugin>
-        </plugins>
-	<testResources>
-            <testResource>
-                <directory>src/test/munit</directory>
-            </testResource>
-        <testResource>
-                <directory>src/test/resources</directory>
-            </testResource>
-        </testResources>
-    </build>
+			<plugin>
+				<groupId>com.mulesoft.munit.tools</groupId>
+				<artifactId>munit-maven-plugin</artifactId>
+				<version>${munit.version}</version>
+				<executions>
+					<execution>
+						<id>test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<coverage>
+						<runCoverage>true</runCoverage>
+						<formats>
+							<format>html</format>
+						</formats>
+					</coverage>
+				</configuration>
+			</plugin>
+		</plugins>
+		<testResources>
+			<testResource>
+				<directory>src/test/munit</directory>
+			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+	</build>
 
 	<!-- Mule Dependencies -->
 	<dependencies>
@@ -208,6 +209,12 @@
 			<version>${mule.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-apikit</artifactId>
+			<version>3.8.1</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- internal dependencies -->
 		<dependency>
 			<groupId>${deh.groupId}</groupId>
@@ -217,11 +224,11 @@
 		</dependency>
 		<!-- other dependencies -->
 		<dependency>
-		    <groupId>com.github.mike10004</groupId>
-		    <artifactId>twitter4j-core</artifactId>
-		    <version>4.0.4p2</version>
+			<groupId>com.github.mike10004</groupId>
+			<artifactId>twitter4j-core</artifactId>
+			<version>4.0.4p2</version>
 		</dependency>
-		
+
 		<!-- for testing -->
 		<dependency>
 			<groupId>org.mule.tests</groupId>
@@ -229,80 +236,86 @@
 			<version>${mule.version}</version>
 			<scope>test</scope>
 		</dependency>
-	<dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-http</artifactId>
-            <version>${mule.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-json</artifactId>
-            <version>${mule.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-validation</artifactId>
-            <version>${mule.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    <dependency>
-            <groupId>com.mulesoft.munit</groupId>
-            <artifactId>mule-munit-support</artifactId>
-            <version>${mule.munit.support.version}</version>
-            <scope>test</scope>
-        </dependency>
-    <dependency>
-            <groupId>com.mulesoft.munit</groupId>
-            <artifactId>munit-runner</artifactId>
-            <version>${munit.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-    
-    <profiles>
-    	<profile>
-    		<id>embedded-runtime</id>
-    		<dependencies>
-    			<dependency>
-    				<groupId>${deh.groupId}</groupId>
-    				<artifactId>${deh.artifactId}</artifactId>
-    				<version>${deh.version}</version>
-    				<scope>compile</scope>
-    			</dependency>
-    		</dependencies>
-    	</profile>
-    </profiles>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-http</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-db</artifactId>
+			<version>3.8.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-json</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-validation</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.munit</groupId>
+			<artifactId>mule-munit-support</artifactId>
+			<version>${mule.munit.support.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.munit</groupId>
+			<artifactId>munit-runner</artifactId>
+			<version>${munit.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>embedded-runtime</id>
+			<dependencies>
+				<dependency>
+					<groupId>${deh.groupId}</groupId>
+					<artifactId>${deh.artifactId}</artifactId>
+					<version>${deh.version}</version>
+					<scope>compile</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 
 	<repositories>
-          <repository>
-            <id>${localrepo.id}</id>
-	        <name>${localrepo.name}</name>
-	        <url>${localrepo.url}</url>
-            <layout>default</layout>
-            <snapshots>
-            	<updatePolicy>always</updatePolicy>
-            	<enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>mulesoft-releases</id>
-            <name>MuleSoft Releases Repository</name>
-            <url>http://repository.mulesoft.org/releases/</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>mulesoft-release</id>
-            <name>mulesoft release repository</name>
-            <layout>default</layout>
-            <url>http://repository.mulesoft.org/releases/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+		<repository>
+			<id>${localrepo.id}</id>
+			<name>${localrepo.name}</name>
+			<url>${localrepo.url}</url>
+			<layout>default</layout>
+			<snapshots>
+				<updatePolicy>always</updatePolicy>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>mulesoft-releases</id>
+			<name>MuleSoft Releases Repository</name>
+			<url>http://repository.mulesoft.org/releases/</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>mulesoft-release</id>
+			<name>mulesoft release repository</name>
+			<layout>default</layout>
+			<url>http://repository.mulesoft.org/releases/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 
 </project>
