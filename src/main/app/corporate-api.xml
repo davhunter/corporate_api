@@ -17,7 +17,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
     	<spring:import resource="classpath:deloitte_mulesoft_error_helper.xml"/>
     </spring:beans>
     
-    <context:property-placeholder location="capi-${mule.env}.properties"/>
+    <context:property-placeholder location="capi-DEV.properties"/>
     
     <http:request-config name="HC_HTTP_Request_Configuration" host="${hc.host}" port="${hc.port}" basePath="${hc.basepath}" doc:name="HTTP Request Configuration" connectionIdleTimeout="${hc.connectionidletimeout}" responseTimeout="${hc.responsetimeout}"/>
     
