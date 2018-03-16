@@ -39,14 +39,14 @@ public class ExecutionDriverTransformer extends AbstractMessageTransformer {
 		String searchTerm = message.getProperty("corporation-name", PropertyScope.INVOCATION);
 
 		// Health Canada
-//		Source hc = new Source("healthcanada", searchTerm);
-//		sources.add(hc);
+		Source hc = new Source("healthcanada", searchTerm);
+		sources.add(hc);
 
 		// Twitter
 		Source t = new Source("twitter", searchTerm);
 		sources.add(t);
 		
-		return sources;
+		return sources.toArray();
 	}
 
 }
