@@ -42,7 +42,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
     </flow>
     <flow name="splitDriverRecordsFlow">
         <vm:inbound-endpoint exchange-pattern="one-way" path="splitDriverRecords" doc:name="Listen to Q for Driver List"/>
-        <collection-splitter doc:name="Collection Splitter" enableCorrelation="ALWAYS"/>
+        <collection-splitter doc:name="Collection Splitter"/>
         <vm:outbound-endpoint exchange-pattern="one-way" path="driverRecord" doc:name="Send to Q for Message Processing"/>
     </flow>
     <flow name="handleRequest">
@@ -82,7 +82,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
                 <expression-component doc:name="Set Error Message"><![CDATA[payload.errorMessage = "Invalid Source for data"]]></expression-component>
             </otherwise>
         </choice>
-        <collection-aggregator failOnTimeout="false" doc:name="Collection Aggregator"/>
+        <collection-aggregator failOnTimeout="true" doc:name="Collection Aggregator"/>
         <vm:outbound-endpoint exchange-pattern="one-way" path="finishedProcessingList" doc:name="Send to Q for Finished Processing"/>
     </flow>
 </mule>

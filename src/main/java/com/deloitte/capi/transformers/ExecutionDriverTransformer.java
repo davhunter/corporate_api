@@ -46,7 +46,7 @@ public class ExecutionDriverTransformer extends AbstractMessageTransformer {
 		Source t = new Source("twitter", searchTerm);
 		sources.add(t);
 		
-		return sources.toArray();
+		return sources;
 	}
 
 }
